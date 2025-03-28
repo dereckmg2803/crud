@@ -1,0 +1,28 @@
+.error-message{
+    color: red;
+}
+
+.birthdate-input{
+    width: 180px;
+}
+
+.image_input{
+    display: flex;
+    justify-content: center;
+    align-items: center ;
+}
+
+.image_preview{
+    width: 180px;
+}
+
+.form {
+    display: flex;
+    justify-content: center;
+    align-items: center ;
+    flex-direction: column;
+}
+
+.card{
+    width: 300px;
+}
