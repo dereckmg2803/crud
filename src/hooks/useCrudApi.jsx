@@ -1,7 +1,7 @@
 
 function useCrudApi() {
   return (
-    <div>useCrudApi</div>
+    <div></div>
   )
 }
 
