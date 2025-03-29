@@ -33,7 +33,7 @@ export function useCrudApi (url) {
 
   const read = async () => {
     const data = await request()
-    if (data) setList(data)
+    if (data.results) setList(data.results)
   }
 
   const update = async (id, updatedItem, method = 'PUT') => {

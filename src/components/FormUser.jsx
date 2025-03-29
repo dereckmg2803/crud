@@ -6,15 +6,20 @@ import { PasswordInput } from "./ui/password-input"
 import { LuFileImage, LuX } from "react-icons/lu"
 import './FormUser.css'
 import { DatePicker } from "antd"
-import dayjs from 'dayjs'
 import { useEffect } from "react"
 import { useState } from "react"
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
+
+
 const schema = z.object({
-    name: z.string().min(1, { message: 'El nombre es requerido' }),
-    lastname: z.string().min(1, { message: 'El apellido es requerido' }),
+    first_name: z.string().min(1, { message: 'El nombre es requerido' }),
+    last_name: z.string().min(1, { message: 'El apellido es requerido' }),
     email: z.string().email({ message: 'Correo invalido' }),
     password: z.string().min(8, { message: 'La contraseña debe tener al menos 8 caracteres' }),
-    birthdate: z.date({
+    birthday: z.date({
         required_error: "La fecha de nacimiento es requerida"
     })
     .refine(date => {
@@ -24,44 +29,65 @@ const schema = z.object({
     }, {
         message: "Debes ser mayor de 18 años"
     }),
-    url: z.string().nonempty()
+    image_url: z.string().nonempty()
 })
 
 const dateFormat = 'YYYY-MM-DD';
 
 
-function FormUser({user = null, closeModal }) {
+function FormUser({user = null,addUser, editUser, closeModal }) {
+   console.log(user);
     const [dataForm, setDataForm] = useState()
 
-    useEffect(() => {
-        if (user) setDataForm(user)
-    }, [user])
+   
+    
 
-    const { register, handleSubmit, watch, reset, control, formState: { errors } } = useForm({
-        resolver: zodResolver(schema)
-    })
+    const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            first_name: '',
+            last_name: '',
+            email: '',
+            password: '',
+            birthday: null,
+            image_url: ''
+        }
+    });
+    
+
+    useEffect(() => {
+        if (user) {
+            reset({
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                email: user.email || '',
+                password: user.password || '', // No prellenar por seguridad
+                // birthday: user.birthday ? dayjs.utc(user.birthday).format('YYYY-MM-DD') : null, 
+                birthday: user.birthday ? dayjs(user.birthday).add(1, 'day').toDate() : null,
+                image_url: user.image_url || ''
+            });
+        }
+    }, [user, reset]);
+    
 
     const onSubmit = (data) => {
         const formattedData = {
             ...data,
-            birthdate: dayjs(data.birthdate).format('YYYY-MM-DD') // Convierte Date a string
+            birthday: dayjs(data.birthday).format('YYYY-MM-DD') // Convierte Date a string
         };
 
-        console.log(formattedData);
+        if (user) {
+            editUser(user.id, formattedData); // Usa editUser si el usuario existe
+        } else {
+            addUser(formattedData); // Usa addUser si es un nuevo usuario
+        }
 
-       
         reset();
 
         if (closeModal) {
             closeModal(); // Cierra el modal después de enviar el formulario
         }
-
-        if (user) {
-            
-        } else{
-
-        }
-    }
+    };
     return (
         <div>
             <form onSubmit={handleSubmit(onSubmit)} className="form" >
@@ -69,10 +95,10 @@ function FormUser({user = null, closeModal }) {
                     <label >
                         <p>Nombre(s):</p>
                         <Input
-                            {...register('name')}
+                            {...register('first_name')}
                             placeholder='Escribe tu nombre'
                         />
-                        {errors.name && <p className="error-message">{errors.name.message}</p>}
+                        {errors.first_name && <p className="error-message">{errors.first_name.message}</p>}
                     </label>
                 </div>
 
@@ -80,10 +106,10 @@ function FormUser({user = null, closeModal }) {
                     <label >
                         <p>Apellidos:</p>
                         <Input
-                            {...register('lastname')}
+                            {...register('last_name')}
                             placeholder='Escribe tu apellido'
                         />
-                        {errors.lastname && <p className="error-message">{errors.lastname.message}</p>}
+                        {errors.last_name && <p className="error-message">{errors.last_name.message}</p>}
                     </label>
                 </div>
 
@@ -119,20 +145,20 @@ function FormUser({user = null, closeModal }) {
         <p>Cumpleaños:</p>
         <Controller
     control={control}
-    name="birthdate"
+    name="birthday"
     render={({ field }) => (
         <DatePicker
             {...field}
             format={dateFormat}
             placeholder="Seleccionar fecha"
-            className="birthdate-input"
+            className="birthday-input"
             value={field.value ? dayjs(field.value) : null} // Convierte Date a dayjs para mostrarlo en el DatePicker
             onChange={(date) => field.onChange(date ? date.toDate() : null)} // Convierte dayjs a Date para almacenarlo en el formulario
         />
     )}
 />
 
-        {errors.birthdate && <p className="error-message">{errors.birthdate.message}</p>}
+        {errors.birthday && <p className="error-message">{errors.birthday.message}</p>}
     </label>
 </div>
 
@@ -143,9 +169,9 @@ function FormUser({user = null, closeModal }) {
                 
                     type="url"
                     placeholder='Adjunta una imagen'
-                    {...register("url")}
+                    {...register("image_url")}
                 />
-                {errors.url && <p className="error-message">{errors.url.message}</p>}
+                {errors.image_url && <p className="error-message">{errors.image_url.message}</p>}
             </div>
 
                 <Button type='submit' variant="subtle" className="button-form">{user ? 'Edit' : 'Add'}</Button>
