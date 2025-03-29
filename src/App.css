@@ -9,11 +9,12 @@
   padding: 1em;
 }
 
-.user-list{
+.user-card{
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgb(129, 78, 78);
+  text-align: center;
+  background-color: rgb(108, 108, 108);
   height: 300px;
   margin: 0.5em;
 }
@@ -26,6 +27,30 @@
   justify-content: center;
 }
 
-button{
-  margin: 0.25em;
+.card_description{
+  display: flex;
+  flex-direction: column;
+}
+
+.car_important_info img{
+  border-radius: 3em;
+}
+
+.title_user{
+  font-size: 2em;
+ 
+}
+
+.button_title{
+  margin: 1em;
+}
+
+.description_item{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.description_item span{
+  margin: 0 0 0 0.5em;
 }
